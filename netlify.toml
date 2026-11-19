@@ -1,0 +1,13 @@
+# The app lives in a subfolder; all paths below are relative to `base`.
+[build]
+  base = "bongseo-netlify-sync-source"
+  command = "npm install --no-audit --no-fund && npm run build"
+  publish = "."
+  functions = "netlify/functions"
+
+[build.environment]
+  # cheerio 1.0.0 needs Node >= 18.17 and the function uses the global fetch API.
+  NODE_VERSION = "22"
+
+[functions]
+  node_bundler = "esbuild"

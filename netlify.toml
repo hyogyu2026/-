@@ -1,6 +1,6 @@
 # The app lives in a subfolder; all paths below are relative to `base`.
 [build]
-  base = "bongseo-netlify-sync-source"
+  base = "bongseo-calendar-v4-meals-timetable"
   command = "npm install --no-audit --no-fund && npm run build"
   publish = "."
   functions = "netlify/functions"

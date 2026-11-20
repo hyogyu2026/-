@@ -1,6 +1,6 @@
 # The app lives in a subfolder; all paths below are relative to `base`.
 [build]
-  base = "bongseo-calendar-v5-school-switch"
+  base = "bongseo-calendar-v5-3-public"
   command = "npm install --no-audit --no-fund && npm run build"
   publish = "."
   functions = "netlify/functions"

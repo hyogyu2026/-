@@ -1,0 +1,1 @@
+봉서 캘린더 v5.1\n- 등록 학교 수정/삭제 (기본 봉서중학교 삭제 방지)\n- 급식 및 학사일정 경로 편집 가능\n- 학교 삭제 시 개인 일정과 학교별 시간표 저장값 유지\n- 전주오송중학교 급식 경로는 학교 수정에서 /M01030402/list.do 로 입력\n- 배포: GitHub에 폴더 업로드 후 루트 netlify.toml base를 bongseo-calendar-v5-1-school-management 로 변경\n

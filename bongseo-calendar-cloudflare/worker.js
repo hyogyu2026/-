@@ -39,12 +39,19 @@ async function neis(service, params, env) {
   }
 
   if (!response.ok) {
-    console.error("NEIS HTTP error", {
-      service,
-      status: response.status
-    });
-    throw new Error(`나이스 API HTTP 오류: ${response.status}`);
-  }
+  const body = await response.text();
+
+  console.error("NEIS HTTP error", {
+    service,
+    status: response.status,
+    contentType: response.headers.get("content-type"),
+    responsePreview: body.slice(0, 300)
+  });
+
+  throw new Error(
+    `나이스 API HTTP ${response.status} - 응답 내용을 서버 로그에서 확인하세요.`
+  );
+}
 
   let data;
 

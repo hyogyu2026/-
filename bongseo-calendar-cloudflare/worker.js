@@ -14,7 +14,7 @@ async function neis(service, params, env) {
   }
 
   const url = new URL("https://open.neis.go.kr/hub/" + service);
-  // url.searchParams.set("KEY", key);
+  url.searchParams.set("KEY", key);
   url.searchParams.set("Type", "json");
   url.searchParams.set("pIndex", "1");
   url.searchParams.set("pSize", "100");

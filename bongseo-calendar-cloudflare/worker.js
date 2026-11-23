@@ -17,7 +17,7 @@ async function neis(service, params, env) {
   url.searchParams.set("KEY", key);
   url.searchParams.set("Type", "json");
   url.searchParams.set("pIndex", "1");
-  url.searchParams.set("pSize", "1000");
+  url.searchParams.set("pSize", "100");
 
   for (const [name, value] of Object.entries(params)) {
     url.searchParams.set(name, String(value));

@@ -27,9 +27,13 @@ async function neis(service, params, env) {
 
   try {
     response = await fetch(url.toString(), {
-      headers: { Accept: "application/json" },
-      signal: AbortSignal.timeout(15000)
-    });
+  method: "GET",
+  headers: {
+    "Accept": "*/*",
+    "User-Agent": "Mozilla/5.0"
+  },
+  signal: AbortSignal.timeout(15000)
+});
   } catch (error) {
     console.error("NEIS network failure", {
       service,

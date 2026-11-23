@@ -6,20 +6,77 @@ const json=(obj,status=200)=>new Response(JSON.stringify(obj),{status,headers:{'
 const trim=x=>String(x??'').trim();
 const digits=x=>/^\d{7,12}$/.test(trim(x));
 const fmt=d=>`${d.getUTCFullYear()}${String(d.getUTCMonth()+1).padStart(2,'0')}${String(d.getUTCDate()).padStart(2,'0')}`;
-async function neis(service,params,env){
-  const u=new URL(BASE+service);
-  u.searchParams.set('Type','json');u.searchParams.set('pIndex','1');u.searchParams.set('pSize','1000');
-  if(env.NEIS_API_KEY)u.searchParams.set('KEY',env.NEIS_API_KEY);
-  for(const [k,v] of Object.entries(params))u.searchParams.set(k,String(v));
-  const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),10000);
-  try{
-    const response=await fetch(u.toString(),{signal:controller.signal,headers:{accept:'application/json'}});
-    if(!response.ok)throw new Error(`나이스 서버 응답 ${response.status}`);
-    const data=await response.json();
-    const entries=data[service];if(Array.isArray(entries))return entries.find(x=>Array.isArray(x.row))?.row||[];
-    const result=data.RESULT||{};if(result.CODE==='INFO-200')return [];
-    throw new Error('나이스 조회 오류: '+trim(result.MESSAGE||'응답 형식 오류').slice(0,100));
-  }finally{clearTimeout(timer)}
+async function neis(service, params, env) {
+  const key = String(env.NEIS_API_KEY || "").trim();
+
+  if (!key) {
+    throw new Error("NEIS_API_KEY 환경변수가 등록되지 않았습니다.");
+  }
+
+  const url = new URL("https://open.neis.go.kr/hub/" + service);
+  url.searchParams.set("KEY", key);
+  url.searchParams.set("Type", "json");
+  url.searchParams.set("pIndex", "1");
+  url.searchParams.set("pSize", "1000");
+
+  for (const [name, value] of Object.entries(params)) {
+    url.searchParams.set(name, String(value));
+  }
+
+  let response;
+
+  try {
+    response = await fetch(url.toString(), {
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(15000)
+    });
+  } catch (error) {
+    console.error("NEIS network failure", {
+      service,
+      error: error.name
+    });
+    throw new Error("나이스 API 연결 실패 또는 시간 초과");
+  }
+
+  if (!response.ok) {
+    console.error("NEIS HTTP error", {
+      service,
+      status: response.status
+    });
+    throw new Error(`나이스 API HTTP 오류: ${response.status}`);
+  }
+
+  let data;
+
+  try {
+    data = await response.json();
+  } catch {
+    console.error("NEIS invalid JSON", { service });
+    throw new Error("나이스 API 응답 형식 오류");
+  }
+
+  const entries = data[service];
+
+  if (Array.isArray(entries)) {
+    return entries.find(item => Array.isArray(item.row))?.row || [];
+  }
+
+  const result = data.RESULT || {};
+
+  if (result.CODE === "INFO-200") {
+    return [];
+  }
+
+  console.error("NEIS application error", {
+    service,
+    code: result.CODE || "UNKNOWN"
+  });
+
+  throw new Error(
+    `나이스 API 오류: ${result.CODE || "UNKNOWN"} - ${
+      String(result.MESSAGE || "알 수 없는 오류").slice(0, 100)
+    }`
+  );
 }
 async function lookupBongseo(env){
   const rows=await neis('schoolInfo',{ATPT_OFCDC_SC_CODE:REGION,SCHUL_NM:'봉서중학교'},env);
